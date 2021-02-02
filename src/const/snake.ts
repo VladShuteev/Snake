@@ -1,3 +1,6 @@
+// TOP && BOTTOM = j = 1
+// LEFT && RIGHT = j = 1
+
 export enum SnakeDirection {
     TOP = 'top',
     LEFT = 'left',
