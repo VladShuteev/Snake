@@ -32,10 +32,15 @@ function App() {
     }
   }
 
-  document.addEventListener('keydown', handleArrow, false)
 
   useEffect(() => {
+    document.addEventListener('keydown', handleArrow, false)
+
     snake.run()
+
+    return () => {
+      document.removeEventListener('keydown', handleArrow, false)
+    }
   }, [])
 
 
