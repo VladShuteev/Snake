@@ -1,7 +1,7 @@
 import Snake from './Snake';
 import { BoardElement, SnakeDirection } from './const/snake';
 
-// 1. Инициализировать доску(Поставить змею и установить направление)
+// 1. DONE | Инициализировать доску(Поставить змею и установить направление)
 // 2. По нажатию кнопки направления начинается игра по указанному направлению
 // 3. Если встречается яблоко, то увеличивается длина и ускоряется змея
 // 4. Если змея врезается в себя или в стену игра заканчивается
@@ -122,6 +122,41 @@ describe('should get a cool game without errors)))', () => {
       const board = snake.board
 
       expect(board).toEqual(expectBoard)
+    })
+  })
+
+  describe('should start game', () => {
+    beforeEach(() => {
+      jest.useFakeTimers()
+    })
+
+    it('should start the game after fire run method', () => {
+      const snake = new Snake()
+
+      snake.run()
+
+      expect(setInterval).toBeCalledTimes(1)      
+    })
+    it('should change position for the snake with the default speed', () => {
+      const snake = new Snake()
+      const ExpectSnakePosition = [[2, 4], [2, 5]]
+
+      snake.run()
+      
+      jest.advanceTimersByTime(1500)
+      expect(snake.snake).toEqual(ExpectSnakePosition)
+    })
+    it('should change position for snake with new direction', () => {
+      const snake = new Snake({
+        snake: [[2, 4], [2, 5], [2, 6]]
+      })
+      const ExpectSnakePosition = [[2, 5], [2, 6], [3, 6]]
+
+      snake.run()
+      snake.setSnakeDirection(SnakeDirection.BOTTOM)
+
+      jest.advanceTimersByTime(1500)
+      expect(snake.snake).toEqual(ExpectSnakePosition)
     })
   })
 })

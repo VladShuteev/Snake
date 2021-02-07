@@ -1,4 +1,6 @@
-import { BoardElement, SnakeDirection } from './const/snake'
+import { stringify } from 'querystring'
+import { isThisTypeNode } from 'typescript'
+import { AllowSnakeDirection, BoardElement, IAllowSnakeDirection, SnakeDirection } from './const/snake'
 
 type TBoard = Array<Array<BoardElement>>
 type TCoordinate = Array<number>
@@ -16,6 +18,8 @@ export default class Snake {
   snake: TSnake = [[2, 3], [2, 4]]
   snakeDirection = SnakeDirection.RIGHT
   apple: TCoordinate = [1, 1]
+  snakeSpeed = 1000
+  timerId: number | undefined
 
   constructor(init?: ISnakeClass ) {
     if (init?.boardSize) this.boardSize = init.boardSize
@@ -47,11 +51,13 @@ export default class Snake {
     })
 
     this.setAppleOnBoard(this.apple)
+    this.snake = snake
   }
 
   setAppleOnBoard(apple: number[]) {
     const [prevAppleX, prevAppleY] = this.apple
     const [appleX, appleY] = apple
+    this.apple = apple
 
     if (this.board[prevAppleX][prevAppleY] !== BoardElement.SNAKE) {
       this.board[prevAppleX][prevAppleY] = BoardElement.EMPTY
@@ -61,10 +67,43 @@ export default class Snake {
   }
 
   setSnakeDirection(direction: SnakeDirection) {
-    this.snakeDirection = direction
+    const allowSnakeDirections: IAllowSnakeDirection = AllowSnakeDirection[this.snakeDirection]
+
+    if (allowSnakeDirections[direction]) {
+      this.snakeDirection = direction
+    }
+  }
+
+  getSnakePosition(): TSnake {
+    let newSnakePosition = [...this.snake.slice(1)] 
+    const headOfSnake = newSnakePosition[newSnakePosition.length - 1]
+    let newHeadOfSnake = [...headOfSnake]
+
+    switch (this.snakeDirection) {
+      case SnakeDirection.TOP:
+        newHeadOfSnake[0]--
+        break;
+      case SnakeDirection.BOTTOM:
+        newHeadOfSnake[0]++
+        break;
+      case SnakeDirection.LEFT:
+        newHeadOfSnake[1]--
+        break;
+      case SnakeDirection.RIGHT:
+        newHeadOfSnake[1]++
+    }
+
+    newSnakePosition.push(newHeadOfSnake)
+
+    return newSnakePosition
+  }
+
+  updateGame() {
+    const snake = this.getSnakePosition()
+    this.setSnakeOnBoard(snake)
   }
 
   run() {
-
+    this.timerId = window.setInterval(this.updateGame.bind(this), this.snakeSpeed)
   }
 }
