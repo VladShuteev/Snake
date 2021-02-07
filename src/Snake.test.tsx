@@ -2,8 +2,8 @@ import Snake from './Snake';
 import { BoardElement, SnakeDirection } from './const/snake';
 
 // 1. DONE | Инициализировать доску(Поставить змею и установить направление)
-// 2. По нажатию кнопки направления начинается игра по указанному направлению
-// 3. Если встречается яблоко, то увеличивается длина и ускоряется змея
+// 2. DONE | По нажатию кнопки направления начинается игра по указанному направлению
+// 3. DONE | Если встречается яблоко, то увеличивается длина и ускоряется змея
 // 4. Если змея врезается в себя или в стену игра заканчивается
 
 describe('should get a cool game without errors)))', () => {
@@ -157,6 +157,105 @@ describe('should get a cool game without errors)))', () => {
 
       jest.advanceTimersByTime(1500)
       expect(snake.snake).toEqual(ExpectSnakePosition)
+    })
+  })
+
+  describe('should eat apple', () => {
+    beforeEach(() => {
+      jest.useFakeTimers()
+    })
+
+    it('should set new apple after eating prev', () => {
+      const [AppleX, AppleY] = [1, 3]
+      const snake = new Snake({
+        boardSize: 9,
+        snake: [[1, 0], [1, 1]],
+        apple: [AppleX, AppleY]
+      })
+      snake.getNewAppleCoordinate = () => [0, 0]
+
+      snake.run()
+
+      jest.advanceTimersByTime(2500)
+      expect(snake.apple).toEqual([0, 0])
+      expect(snake.board[AppleX][AppleY]).toEqual(BoardElement.SNAKE)
+    })
+    it('should increase length after eating', () => {
+      const snake = new Snake({
+        boardSize: 9,
+        snake: [[1, 0], [1, 1]],
+        apple: [1, 3]
+      })
+
+      snake.run()
+
+      jest.advanceTimersByTime(2500)
+      expect(snake.snake).toEqual([[1, 1], [1, 2], [1, 3]])
+    })
+    it('should increase length after eating for curve snake', () => {
+      const snake = new Snake({
+        boardSize: 9,
+        snake: [[1, 2], [1, 3], [2, 3]],
+        apple: [2, 4]
+      })
+
+      snake.run()
+
+      jest.advanceTimersByTime(1500)
+      expect(snake.snake).toEqual([[1, 2], [1, 3], [2, 3], [2, 4]])
+    })
+    it('should increase speed after eating', () => {
+      const snake = new Snake({
+        boardSize: 9,
+        snake: [[1, 0], [1, 1]],
+        apple: [1, 3]
+      })
+      snake.getNewAppleCoordinate = () => [0, 0]
+
+      snake.run()
+
+      jest.advanceTimersByTime(2000)
+      expect(snake.snakeSpeed).toEqual(950)
+      jest.advanceTimersByTime(950)
+      expect(snake.snake).toEqual([[1, 2], [1, 3], [1, 4]])
+    })
+  })
+
+  describe('should stop game', () => {
+    beforeEach(() => {
+      jest.useFakeTimers()
+    })
+
+    it('should stop the snake game to eat itself', () => {
+      const expectSnake = [[2, 1], [2, 2], [2, 3], [3, 3], [3, 2]]
+      const snake = new Snake({
+        boardSize: 9,
+        snake: [[2, 1], [2, 2], [2, 3], [3, 3], [3, 2]]
+      })
+      snake.getNewAppleCoordinate = () => [0, 0]
+
+      snake.run()
+      snake.setSnakeDirection(SnakeDirection.TOP)
+
+      jest.advanceTimersByTime(1000)
+      expect(snake.snake).toEqual(expectSnake)
+      jest.advanceTimersByTime(2000)
+      expect(snake.snake).toEqual(expectSnake)
+    })
+    it('should stop the snake game to eat board', () => {
+      const expectSnake = [[2, 6], [2, 7], [2, 8]]
+      const snake = new Snake({
+        boardSize: 9,
+        snake: [[2, 5], [2, 6], [2, 7]]
+      })
+      snake.getNewAppleCoordinate = () => [0, 0]
+
+      snake.run()
+
+      jest.advanceTimersByTime(2000)
+      expect(snake.snake).toEqual(expectSnake)
+      jest.advanceTimersByTime(2000)
+      expect(snake.snake).toEqual(expectSnake)
     })
   })
 })

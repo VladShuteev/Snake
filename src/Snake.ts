@@ -9,6 +9,7 @@ type TSnake = Array<TCoordinate>
 interface ISnakeClass {
   boardSize?: number,
   snake?: TSnake
+  apple?: TCoordinate
 }
 
 
@@ -24,6 +25,7 @@ export default class Snake {
   constructor(init?: ISnakeClass ) {
     if (init?.boardSize) this.boardSize = init.boardSize
     if (init?.snake) this.snake = init.snake
+    if (init?.apple) this.apple = init.apple
 
     this.board = this.getEmptyBoard()
     this.setSnakeOnBoard(this.snake)
@@ -74,7 +76,7 @@ export default class Snake {
     }
   }
 
-  getSnakePosition(): TSnake {
+  getNewSnakePosition(): TSnake {
     let newSnakePosition = [...this.snake.slice(1)] 
     const headOfSnake = newSnakePosition[newSnakePosition.length - 1]
     let newHeadOfSnake = [...headOfSnake]
@@ -98,9 +100,58 @@ export default class Snake {
     return newSnakePosition
   }
 
+  checkContentOfSnake(snake: TSnake, square: TCoordinate): boolean {
+    const [squareX, squareY] = square
+    const foundSquare = snake.find(([snakeX, snakeY]) => squareX === snakeX && squareY === snakeY)
+    
+    return !!foundSquare
+  }
+
+  checkSnakeError(snake: TSnake): boolean {
+    const snakeHeadCoordinate = snake.length - 1
+    const snakeHead = snake[snakeHeadCoordinate]
+    const snakeWithoutHead = snake.slice(0, snakeHeadCoordinate)
+    const isHeadInSnake = this.checkContentOfSnake(snakeWithoutHead, snakeHead)
+    const isHeadEqualEnd = this.checkContentOfSnake([snake[0]], snakeHead)
+    const isHeadEqualBoard = snakeHead.some(coordinate => coordinate >= this.boardSize)
+
+    return isHeadInSnake || isHeadEqualEnd || isHeadEqualBoard
+  }
+
+  getNewAppleCoordinate(): TCoordinate {
+    const getRandomInt = () => Math.floor(Math.random() * Math.floor(this.boardSize))
+    const appleX = getRandomInt()
+    const appleY = getRandomInt()
+
+    const apple = [appleX, appleY]
+
+    if (this.checkContentOfSnake(this.snake, apple)) {
+      return this.getNewAppleCoordinate()
+    } else {
+      return apple 
+    }
+  }
+
   updateGame() {
-    const snake = this.getSnakePosition()
+    let snake = this.getNewSnakePosition()
+
+    if (this.checkSnakeError(snake)) {
+      return this.stop()
+    }
+
+    if (this.checkContentOfSnake(snake, this.apple)) {
+      this.setAppleOnBoard(this.getNewAppleCoordinate())
+      snake.unshift(this.snake[0])
+      this.snakeSpeed = this.snakeSpeed - 50
+      this.stop()
+      this.run()
+    }
+
     this.setSnakeOnBoard(snake)
+  }
+
+  stop() {
+    clearInterval(this.timerId)
   }
 
   run() {
