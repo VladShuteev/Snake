@@ -119,7 +119,7 @@ export default class Snake {
     const snakeWithoutHead = snake.slice(0, snakeHeadCoordinate)
     const isHeadInSnake = this.checkContentOfSnake(snakeWithoutHead, snakeHead)
     const isHeadEqualEnd = this.checkContentOfSnake([snake[0]], snakeHead)
-    const isHeadEqualBoard = snakeHead.some(coordinate => coordinate >= this.boardSize)
+    const isHeadEqualBoard = snakeHead.some(coordinate => coordinate >= this.boardSize || coordinate < 0)
 
     return isHeadInSnake || isHeadEqualEnd || isHeadEqualBoard
   }
