@@ -1,0 +1,13 @@
+.Square {
+    width: 50px;
+    height: 50px;
+    border: 1px solid #cd0;
+}
+
+.Apple {
+    background-color: aquamarine;
+}
+
+.Snake {
+    background-color: rosybrown;
+}

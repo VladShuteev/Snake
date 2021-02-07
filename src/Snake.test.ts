@@ -1,14 +1,11 @@
 import Snake from './Snake';
 import { BoardElement, SnakeDirection } from './const/snake';
 
-// 1. DONE | Инициализировать доску(Поставить змею и установить направление)
-// 2. DONE | По нажатию кнопки направления начинается игра по указанному направлению
-// 3. DONE | Если встречается яблоко, то увеличивается длина и ускоряется змея
-// 4. Если змея врезается в себя или в стену игра заканчивается
+// конечно граничные значения, как то что змея длиннее доски в одну линию,
+// я не буду обрабатывать в этом пример, надеюсь вы понимаете почему)
 
 describe('should get a cool game without errors)))', () => {
-  // конечно граничные значения, как то что змея длиннее доски в одну линию,
-  // я не буду обрабатывать в этом пример, надеюсь вы понимаете почему)
+
   describe('should init right props', () => {
     it('should get init board props', () => {
       const snake = new Snake()
@@ -143,7 +140,7 @@ describe('should get a cool game without errors)))', () => {
 
       snake.run()
       
-      jest.advanceTimersByTime(1500)
+      jest.advanceTimersByTime(snake.snakeSpeed)
       expect(snake.snake).toEqual(ExpectSnakePosition)
     })
     it('should change position for snake with new direction', () => {
@@ -155,7 +152,7 @@ describe('should get a cool game without errors)))', () => {
       snake.run()
       snake.setSnakeDirection(SnakeDirection.BOTTOM)
 
-      jest.advanceTimersByTime(1500)
+      jest.advanceTimersByTime(snake.snakeSpeed)
       expect(snake.snake).toEqual(ExpectSnakePosition)
     })
   })
@@ -176,7 +173,7 @@ describe('should get a cool game without errors)))', () => {
 
       snake.run()
 
-      jest.advanceTimersByTime(2500)
+      jest.advanceTimersByTime(2 * snake.snakeSpeed)
       expect(snake.apple).toEqual([0, 0])
       expect(snake.board[AppleX][AppleY]).toEqual(BoardElement.SNAKE)
     })
@@ -189,7 +186,7 @@ describe('should get a cool game without errors)))', () => {
 
       snake.run()
 
-      jest.advanceTimersByTime(2500)
+      jest.advanceTimersByTime(2 * snake.snakeSpeed)
       expect(snake.snake).toEqual([[1, 1], [1, 2], [1, 3]])
     })
     it('should increase length after eating for curve snake', () => {
@@ -201,7 +198,7 @@ describe('should get a cool game without errors)))', () => {
 
       snake.run()
 
-      jest.advanceTimersByTime(1500)
+      jest.advanceTimersByTime(snake.snakeSpeed)
       expect(snake.snake).toEqual([[1, 2], [1, 3], [2, 3], [2, 4]])
     })
     it('should increase speed after eating', () => {
@@ -210,13 +207,15 @@ describe('should get a cool game without errors)))', () => {
         snake: [[1, 0], [1, 1]],
         apple: [1, 3]
       })
+      const snakeSpeed = snake.snakeSpeed 
+      const snakeSpeedDec = snake.snakeSpeedDec
       snake.getNewAppleCoordinate = () => [0, 0]
 
       snake.run()
 
-      jest.advanceTimersByTime(2000)
-      expect(snake.snakeSpeed).toEqual(950)
-      jest.advanceTimersByTime(950)
+      jest.advanceTimersByTime(2 * snakeSpeed)
+      expect(snake.snakeSpeed).toEqual(snakeSpeed - snakeSpeedDec)
+      jest.advanceTimersByTime(snakeSpeed - snakeSpeedDec)
       expect(snake.snake).toEqual([[1, 2], [1, 3], [1, 4]])
     })
   })
@@ -237,9 +236,9 @@ describe('should get a cool game without errors)))', () => {
       snake.run()
       snake.setSnakeDirection(SnakeDirection.TOP)
 
-      jest.advanceTimersByTime(1000)
+      jest.advanceTimersByTime(snake.snakeSpeed)
       expect(snake.snake).toEqual(expectSnake)
-      jest.advanceTimersByTime(2000)
+      jest.advanceTimersByTime(2 * snake.snakeSpeed)
       expect(snake.snake).toEqual(expectSnake)
     })
     it('should stop the snake game to eat board', () => {
@@ -252,9 +251,9 @@ describe('should get a cool game without errors)))', () => {
 
       snake.run()
 
-      jest.advanceTimersByTime(2000)
+      jest.advanceTimersByTime(2 * snake.snakeSpeed)
       expect(snake.snake).toEqual(expectSnake)
-      jest.advanceTimersByTime(2000)
+      jest.advanceTimersByTime(2 * snake.snakeSpeed)
       expect(snake.snake).toEqual(expectSnake)
     })
   })

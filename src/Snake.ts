@@ -1,8 +1,6 @@
-import { stringify } from 'querystring'
-import { isThisTypeNode } from 'typescript'
 import { AllowSnakeDirection, BoardElement, IAllowSnakeDirection, SnakeDirection } from './const/snake'
 
-type TBoard = Array<Array<BoardElement>>
+export type TBoard = Array<Array<BoardElement>>
 type TCoordinate = Array<number>
 type TSnake = Array<TCoordinate>
 
@@ -10,6 +8,8 @@ interface ISnakeClass {
   boardSize?: number,
   snake?: TSnake
   apple?: TCoordinate
+  boardReactHandler?: React.Dispatch<React.SetStateAction<TBoard>>
+  appledReactHandler?: React.Dispatch<React.SetStateAction<number>>
 }
 
 
@@ -19,13 +19,19 @@ export default class Snake {
   snake: TSnake = [[2, 3], [2, 4]]
   snakeDirection = SnakeDirection.RIGHT
   apple: TCoordinate = [1, 1]
-  snakeSpeed = 1000
+  numberOfApple = 0
+  snakeSpeed = 500
+  snakeSpeedDec = 20
   timerId: number | undefined
+  boardReactHandler
+  appledReactHandler
 
   constructor(init?: ISnakeClass ) {
     if (init?.boardSize) this.boardSize = init.boardSize
     if (init?.snake) this.snake = init.snake
     if (init?.apple) this.apple = init.apple
+    if (init?.boardReactHandler) this.boardReactHandler = init.boardReactHandler
+    if (init?.appledReactHandler) this.appledReactHandler = init.appledReactHandler
 
     this.board = this.getEmptyBoard()
     this.setSnakeOnBoard(this.snake)
@@ -136,18 +142,25 @@ export default class Snake {
     let snake = this.getNewSnakePosition()
 
     if (this.checkSnakeError(snake)) {
+      if (this.boardReactHandler) {
+        alert('oooops you lose')
+      }
       return this.stop()
     }
 
     if (this.checkContentOfSnake(snake, this.apple)) {
       this.setAppleOnBoard(this.getNewAppleCoordinate())
       snake.unshift(this.snake[0])
-      this.snakeSpeed = this.snakeSpeed - 50
+      this.snakeSpeed = this.snakeSpeed - this.snakeSpeedDec 
       this.stop()
       this.run()
+      this.numberOfApple++
     }
 
     this.setSnakeOnBoard(snake)
+
+    if (this.boardReactHandler) this.boardReactHandler(this.board)
+    if (this.appledReactHandler) this.appledReactHandler(this.numberOfApple)
   }
 
   stop() {
